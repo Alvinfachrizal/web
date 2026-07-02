@@ -8,27 +8,18 @@ export function cn(...inputs: ClassValue[]) {
 export function formatDate(dateString: string | Date, locale = 'id-ID') {
   const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
   return new Intl.DateTimeFormat(locale, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: 'numeric', month: 'long', year: 'numeric',
   }).format(date);
 }
 
 export function formatCurrency(amount: number) {
   return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
+    style: 'currency', currency: 'IDR', minimumFractionDigits: 0,
   }).format(amount);
 }
 
 export function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
+  return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
 }
 
 export function extractApiError(error: unknown): string {

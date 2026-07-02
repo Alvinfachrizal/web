@@ -1,13 +1,5 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-jakarta',
-  display: 'swap',
-  weight: ['400', '500', '600', '700', '800'],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -16,22 +8,21 @@ export const metadata: Metadata = {
   },
   description:
     'Platform terpusat yang menghubungkan sekolah, guru, siswa, dan orang tua untuk kegiatan akademik, administrasi, dan komunikasi.',
-  keywords: ['sistem informasi sekolah', 'manajemen sekolah', 'SIMS', 'e-learning', 'rapor digital'],
-  authors: [{ name: 'SIMS Team' }],
-  robots: 'noindex, nofollow', // internal app
+  robots: 'noindex, nofollow',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={`${plusJakarta.variable} antialiased`}>
+      <body className="antialiased">
         {children}
       </body>
     </html>

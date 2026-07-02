@@ -1,73 +1,41 @@
 'use client';
 
 import {
-  Users, GraduationCap, UserCheck, BookOpen,
-  ClipboardCheck, Wallet, TrendingUp, TrendingDown,
-  AlertCircle, CheckCircle2, Clock, School,
+  GraduationCap, UserCheck, ClipboardCheck, Wallet,
+  TrendingUp, TrendingDown, BookOpen, School, Clock,
+  CheckCircle2, AlertCircle, ArrowRight, Plus,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth.store';
 
-// ── Mock data (akan diganti API call) ───────────────────
+// ── Mock data ─────────────────────────────────────────────
 const stats = [
-  {
-    id: 'total-siswa',
-    label: 'Total Siswa',
-    value: '1.248',
-    change: '+24',
-    trend: 'up',
-    icon: GraduationCap,
-    color: 'blue',
-  },
-  {
-    id: 'total-guru',
-    label: 'Total Guru',
-    value: '86',
-    change: '+3',
-    trend: 'up',
-    icon: UserCheck,
-    color: 'purple',
-  },
-  {
-    id: 'kehadiran',
-    label: 'Kehadiran Hari Ini',
-    value: '94.2%',
-    change: '-1.3%',
-    trend: 'down',
-    icon: ClipboardCheck,
-    color: 'green',
-  },
-  {
-    id: 'tagihan',
-    label: 'Tagihan Belum Bayar',
-    value: '127',
-    change: 'Rp 45,2 Jt',
-    trend: 'neutral',
-    icon: Wallet,
-    color: 'amber',
-  },
+  { id: 'siswa',     label: 'Total Siswa',     value: '1.248', change: '+24', trend: 'up',      icon: GraduationCap },
+  { id: 'guru',      label: 'Total Guru',      value: '86',    change: '+3',  trend: 'up',      icon: UserCheck },
+  { id: 'kehadiran', label: 'Kehadiran (H)',   value: '94.2%', change: '-1.3%', trend: 'down',    icon: ClipboardCheck },
+  { id: 'tagihan',   label: 'Tagihan Belum',   value: '127',   change: 'Rp 45jt', trend: 'neutral', icon: Wallet },
 ];
 
-const colorMap: Record<string, { bg: string; icon: string; badge: string }> = {
-  blue:   { bg: 'hsl(234 89% 56% / 0.08)', icon: 'hsl(234 89% 56%)', badge: 'badge-blue' },
-  purple: { bg: 'hsl(280 65% 60% / 0.08)', icon: 'hsl(280 65% 55%)', badge: 'badge-purple' },
-  green:  { bg: 'hsl(142 71% 45% / 0.08)', icon: 'hsl(142 71% 40%)', badge: 'badge-green' },
-  amber:  { bg: 'hsl(38 92% 50% / 0.08)',  icon: 'hsl(38 72% 45%)',  badge: 'badge-amber' },
-};
-
-const recentActivities = [
-  { id: 1, type: 'siswa', text: 'Andi Pratama ditambahkan ke Kelas X IPA 1', time: '5 menit lalu', icon: GraduationCap, color: 'blue' },
-  { id: 2, type: 'nilai', text: 'Nilai UTS Matematika kelas XI IPS 2 telah diinput', time: '32 menit lalu', icon: BookOpen, color: 'purple' },
-  { id: 3, type: 'absensi', text: '12 siswa tidak hadir hari ini', time: '1 jam lalu', icon: ClipboardCheck, color: 'amber' },
-  { id: 4, type: 'pembayaran', text: 'Sri Wahyuni membayar SPP bulan Juli', time: '2 jam lalu', icon: Wallet, color: 'green' },
-  { id: 5, type: 'pengumuman', text: 'Pengumuman libur Idul Adha dipublikasikan', time: '3 jam lalu', icon: School, color: 'blue' },
+const activities = [
+  { id: 1, text: 'Andi Pratama ditambahkan ke Kelas X IPA 1', time: '5 mnt lalu', icon: GraduationCap, color: 'var(--color-info)' },
+  { id: 2, text: 'Nilai UTS Matematika kelas XI IPS 2 telah diinput', time: '32 mnt lalu', icon: BookOpen, color: 'var(--color-success)' },
+  { id: 3, text: '12 siswa alfa hari ini', time: '1 jam lalu', icon: ClipboardCheck, color: 'var(--color-danger)' },
+  { id: 4, text: 'Sri Wahyuni membayar SPP bulan Juli', time: '2 jam lalu', icon: Wallet, color: 'var(--color-success)' },
+  { id: 5, text: 'Pengumuman libur Idul Adha dipublikasikan', time: '3 jam lalu', icon: School, color: 'var(--color-info)' },
 ];
 
 const quickActions = [
-  { id: 'tambah-siswa', label: 'Tambah Siswa', icon: GraduationCap, href: '/admin/siswa/tambah', color: 'blue' },
-  { id: 'input-absensi', label: 'Input Absensi', icon: ClipboardCheck, href: '/admin/absensi', color: 'green' },
-  { id: 'input-nilai', label: 'Input Nilai', icon: BookOpen, href: '/admin/nilai', color: 'purple' },
-  { id: 'tagihan-spp', label: 'Tagihan SPP', icon: Wallet, href: '/admin/keuangan', color: 'amber' },
+  { id: 'tambah-siswa',  label: 'Tambah Siswa',  icon: GraduationCap },
+  { id: 'input-absensi', label: 'Input Absensi', icon: ClipboardCheck },
+  { id: 'input-nilai',   label: 'Input Nilai',   icon: BookOpen },
+  { id: 'tagihan-spp',   label: 'Tagihan SPP',   icon: Wallet },
+];
+
+const attendance = [
+  { label: 'Hadir', count: 1176, total: 1248, color: 'var(--color-success)' },
+  { label: 'Izin',  count: 38,   total: 1248, color: 'var(--color-info)' },
+  { label: 'Sakit', count: 24,   total: 1248, color: 'var(--color-warning)' },
+  { label: 'Alfa',  count: 10,   total: 1248, color: 'var(--color-danger)' },
 ];
 
 export default function AdminDashboard() {
@@ -76,122 +44,124 @@ export default function AdminDashboard() {
   const greeting = hour < 11 ? 'Selamat Pagi' : hour < 15 ? 'Selamat Siang' : 'Selamat Sore';
 
   return (
-    <div className="admin-dashboard">
-      {/* ── Header ──────────────────────────────────────── */}
-      <div className="dash-header">
+    <div className="space-y-5 max-w-7xl mx-auto">
+
+      {/* ── Header ────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="dash-title">
-            {greeting}, <span className="gradient-text">{user?.name?.split(' ')[0]}</span> 👋
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight" style={{ color: 'var(--color-text)' }}>
+            {greeting},{' '}
+            <span className="gradient-text">{user?.name?.split(' ')[0]}</span> 👋
           </h1>
-          <p className="dash-subtitle">
-            Berikut ringkasan aktivitas sekolah hari ini,{' '}
+          <p className="text-[11px] sm:text-xs mt-1 font-medium" style={{ color: 'var(--color-muted)' }}>
             {new Intl.DateTimeFormat('id-ID', {
               weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
             }).format(new Date())}
           </p>
         </div>
-
-        <div className="dash-school-badge">
-          <School size={15} />
-          <span>SMA Negeri 1 Contoh</span>
-          <span className="badge badge-green">Aktif</span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl shadow-sm text-xs font-semibold"
+             style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)', color: 'var(--color-text)' }}>
+          <School size={14} style={{ color: 'var(--color-brand)' }} />
+          SMA N 1 Contoh
+          <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+                style={{ background: 'var(--color-success-soft)', color: 'var(--color-success-dark)' }}>
+            Aktif
+          </span>
         </div>
       </div>
 
-      {/* ── Stat Cards ──────────────────────────────────── */}
-      <div className="dash-stats">
-        {stats.map(({ id, label, value, change, trend, icon: Icon, color }) => {
-          const c = colorMap[color];
-          return (
-            <div key={id} id={id} className="stat-card card">
-              <div className="stat-card__header">
-                <div className="stat-card__icon" style={{ background: c.bg, color: c.icon }}>
-                  <Icon size={20} />
-                </div>
-                <div className={cn('badge', trend === 'up' ? 'badge-green' : trend === 'down' ? 'badge-red' : 'badge-amber')}>
-                  {trend === 'up' && <TrendingUp size={11} />}
-                  {trend === 'down' && <TrendingDown size={11} />}
-                  {change}
+      {/* ── Stat Cards ────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {stats.map(({ id, label, value, change, trend, icon: Icon }) => (
+          <div key={id} id={id} className="rounded-2xl p-4 sm:p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5"
+               style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                   style={{ background: 'var(--color-brand-soft)', color: 'var(--color-brand-dark)' }}>
+                <Icon size={18} />
+              </div>
+              <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md"
+                    style={{
+                      background: trend === 'up' ? 'var(--color-success-soft)' : trend === 'down' ? 'var(--color-danger-soft)' : 'var(--color-warning-soft)',
+                      color:      trend === 'up' ? 'var(--color-success-dark)' : trend === 'down' ? 'var(--color-danger-dark)' : 'var(--color-warning-dark)'
+                    }}>
+                {trend === 'up' && <TrendingUp size={10} />}
+                {trend === 'down' && <TrendingDown size={10} />}
+                {change}
+              </span>
+            </div>
+            <p className="text-2xl sm:text-3xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>{value}</p>
+            <p className="text-[11px] mt-0.5 font-semibold" style={{ color: 'var(--color-muted)' }}>{label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Quick Actions ─────────────────────────────────── */}
+      <div>
+        <h2 className="font-bold text-[13px] mb-2.5" style={{ color: 'var(--color-text)' }}>Aksi Cepat</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {quickActions.map(({ id, label, icon: Icon }) => (
+            <button key={id} id={id}
+                    className="group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col items-center gap-2.5 text-center"
+                    style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+              <div className="w-11 h-11 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                   style={{ background: 'var(--color-section)', color: 'var(--color-brand)' }}>
+                <Icon size={18} />
+              </div>
+              <span className="text-[11px] font-bold" style={{ color: 'var(--color-text)' }}>{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Content Grid ──────────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+
+        {/* Activity Feed */}
+        <div className="xl:col-span-2 rounded-2xl shadow-sm overflow-hidden"
+             style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+          <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+            <h3 className="font-bold text-[13px]" style={{ color: 'var(--color-text)' }}>Aktivitas Terkini</h3>
+            <button className="flex items-center gap-1 text-[11px] font-bold transition-colors hover:opacity-80"
+                    style={{ color: 'var(--color-brand)' }}>
+              Lihat Semua <ArrowRight size={12} />
+            </button>
+          </div>
+          <div>
+            {activities.map(({ id, text, time, icon: Icon, color }, idx) => (
+              <div key={id} className="flex items-start gap-3.5 px-5 py-3"
+                   style={{ borderBottom: idx !== activities.length -1 ? '0.5px solid var(--color-section)' : 'none' }}>
+                <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: color }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-medium leading-relaxed" style={{ color: 'var(--color-text)' }}>{text}</p>
+                  <p className="text-[10px] mt-0.5 flex items-center gap-1" style={{ color: 'var(--color-muted)' }}>
+                    <Clock size={10} /> {time}
+                  </p>
                 </div>
               </div>
-              <p className="stat-card__value">{value}</p>
-              <p className="stat-card__label">{label}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Quick Actions ────────────────────────────────── */}
-      <div className="dash-section">
-        <h2 className="dash-section-title">Aksi Cepat</h2>
-        <div className="quick-actions">
-          {quickActions.map(({ id, label, icon: Icon, href, color }) => {
-            const c = colorMap[color];
-            return (
-              <a key={id} id={id} href={href} className="quick-action card">
-                <div className="quick-action__icon" style={{ background: c.bg, color: c.icon }}>
-                  <Icon size={22} />
-                </div>
-                <span className="quick-action__label">{label}</span>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Content Grid ────────────────────────────────── */}
-      <div className="dash-grid">
-        {/* Recent Activity */}
-        <div className="card dash-activity">
-          <div className="dash-card-header">
-            <h3>Aktivitas Terkini</h3>
-            <a href="/admin/aktivitas" className="dash-see-all">Lihat Semua</a>
-          </div>
-          <div className="activity-list">
-            {recentActivities.map(({ id, text, time, icon: Icon, color }) => {
-              const c = colorMap[color];
-              return (
-                <div key={id} className="activity-item">
-                  <div className="activity-item__icon" style={{ background: c.bg, color: c.icon }}>
-                    <Icon size={15} />
-                  </div>
-                  <div className="activity-item__content">
-                    <p className="activity-item__text">{text}</p>
-                    <p className="activity-item__time">
-                      <Clock size={11} />
-                      {time}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+            ))}
           </div>
         </div>
 
-        {/* Status Panel */}
-        <div className="dash-status-col">
-          {/* Kehadiran */}
-          <div className="card dash-status-card">
-            <div className="dash-card-header">
-              <h3>Status Kehadiran Hari Ini</h3>
+        {/* Right column */}
+        <div className="space-y-4">
+          
+          {/* Attendance Chart */}
+          <div className="rounded-2xl shadow-sm overflow-hidden"
+               style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+            <div className="px-5 py-3.5" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+              <h3 className="font-bold text-[13px]" style={{ color: 'var(--color-text)' }}>Kehadiran Hari Ini</h3>
             </div>
-            <div className="attendance-bars">
-              {[
-                { label: 'Hadir', count: 1176, total: 1248, color: 'hsl(142 71% 45%)' },
-                { label: 'Sakit', count: 38, total: 1248, color: 'hsl(38 92% 50%)' },
-                { label: 'Izin', count: 24, total: 1248, color: 'hsl(199 89% 48%)' },
-                { label: 'Alfa', count: 10, total: 1248, color: 'hsl(0 84% 60%)' },
-              ].map(({ label, count, total, color }) => (
-                <div key={label} className="att-bar">
-                  <div className="att-bar__info">
-                    <span className="att-bar__label">{label}</span>
-                    <span className="att-bar__count">{count}</span>
+            <div className="px-5 py-4 space-y-3.5">
+              {attendance.map(({ label, count, total, color }) => (
+                <div key={label}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[11px] font-semibold" style={{ color: 'var(--color-muted)' }}>{label}</span>
+                    <span className="text-[11px] font-bold" style={{ color: 'var(--color-text)' }}>{count}</span>
                   </div>
-                  <div className="att-bar__track">
-                    <div
-                      className="att-bar__fill"
-                      style={{ width: `${(count / total) * 100}%`, background: color }}
-                    />
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--color-section)' }}>
+                    <div className="h-full rounded-full transition-all duration-700"
+                         style={{ width: `${(count / total) * 100}%`, background: color }} />
                   </div>
                 </div>
               ))}
@@ -199,134 +169,45 @@ export default function AdminDashboard() {
           </div>
 
           {/* System Status */}
-          <div className="card dash-status-card">
-            <div className="dash-card-header">
-              <h3>Status Sistem</h3>
+          <div className="rounded-2xl shadow-sm overflow-hidden"
+               style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
+            <div className="px-5 py-3.5" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
+              <h3 className="font-bold text-[13px]" style={{ color: 'var(--color-text)' }}>Status Sistem</h3>
             </div>
-            <div className="sys-status-list">
+            <div className="px-5 py-3 space-y-2">
               {[
                 { label: 'API Server', ok: true },
                 { label: 'Database', ok: true },
-                { label: 'File Storage', ok: true },
                 { label: 'Email Service', ok: false },
               ].map(({ label, ok }) => (
-                <div key={label} className="sys-status-item">
-                  {ok
-                    ? <CheckCircle2 size={15} style={{ color: 'hsl(142 71% 45%)' }} />
-                    : <AlertCircle size={15} style={{ color: 'hsl(0 84% 60%)' }} />
-                  }
-                  <span>{label}</span>
-                  <span className={cn('badge', ok ? 'badge-green' : 'badge-red')}>
+                <div key={label} className="flex items-center justify-between py-1">
+                  <div className="flex items-center gap-2">
+                    {ok
+                      ? <CheckCircle2 size={14} style={{ color: 'var(--color-success)' }} />
+                      : <AlertCircle size={14} style={{ color: 'var(--color-danger)' }} />
+                    }
+                    <span className="text-[11px] font-semibold" style={{ color: 'var(--color-text)' }}>{label}</span>
+                  </div>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{
+                          background: ok ? 'var(--color-success-soft)' : 'var(--color-danger-soft)',
+                          color:      ok ? 'var(--color-success-dark)' : 'var(--color-danger-dark)'
+                        }}>
                     {ok ? 'Online' : 'Offline'}
                   </span>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Single Primary CTA */}
+          <button className="w-full rounded-xl py-3 font-bold text-[12px] text-white flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                  style={{ background: 'var(--color-brand)', boxShadow: '0 2px 10px rgba(55,138,221,0.2)' }}>
+            <Plus size={16} />
+            Tambah Data Baru
+          </button>
         </div>
       </div>
-
-      <style jsx>{`
-        .admin-dashboard { display: flex; flex-direction: column; gap: 24px; }
-
-        .dash-header {
-          display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
-          flex-wrap: wrap;
-        }
-        .dash-title { font-size: 1.625rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.02em; }
-        .dash-subtitle { color: hsl(var(--color-text-muted)); font-size: 0.9rem; }
-        .dash-school-badge {
-          display: flex; align-items: center; gap: 8px;
-          padding: 8px 14px; border-radius: 10px;
-          background: hsl(var(--color-surface));
-          border: 1px solid hsl(var(--color-border));
-          font-size: 0.85rem; font-weight: 500; color: hsl(var(--color-text));
-          flex-shrink: 0;
-        }
-
-        /* ── Stat Cards ─────────────────────────────── */
-        .dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .stat-card { padding: 20px; }
-        .stat-card__header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-        .stat-card__icon {
-          width: 44px; height: 44px; border-radius: 12px;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .stat-card__value { font-size: 1.875rem; font-weight: 800; letter-spacing: -0.03em; color: hsl(var(--color-text)); margin-bottom: 4px; }
-        .stat-card__label { font-size: 0.82rem; color: hsl(var(--color-text-muted)); }
-
-        /* ── Quick Actions ─────────────────────────── */
-        .dash-section-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
-        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        .quick-action {
-          display: flex; flex-direction: column; align-items: center;
-          gap: 10px; padding: 20px 16px; text-align: center;
-          text-decoration: none; transition: all 0.2s;
-        }
-        .quick-action:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .quick-action__icon {
-          width: 48px; height: 48px; border-radius: 14px;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .quick-action__label { font-size: 0.82rem; font-weight: 600; color: hsl(var(--color-text)); }
-
-        /* ── Content Grid ──────────────────────────── */
-        .dash-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
-
-        /* Activity */
-        .dash-activity { padding: 20px; }
-        .dash-card-header {
-          display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;
-        }
-        .dash-card-header h3 { font-size: 0.95rem; font-weight: 700; }
-        .dash-see-all { font-size: 0.8rem; color: hsl(var(--color-primary)); text-decoration: none; font-weight: 600; }
-        .dash-see-all:hover { text-decoration: underline; }
-
-        .activity-list { display: flex; flex-direction: column; gap: 16px; }
-        .activity-item { display: flex; gap: 12px; align-items: flex-start; }
-        .activity-item__icon {
-          width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .activity-item__text { font-size: 0.85rem; color: hsl(var(--color-text)); margin-bottom: 3px; line-height: 1.4; }
-        .activity-item__time {
-          display: flex; align-items: center; gap: 4px;
-          font-size: 0.75rem; color: hsl(var(--color-text-muted));
-        }
-
-        /* Status col */
-        .dash-status-col { display: flex; flex-direction: column; gap: 16px; }
-        .dash-status-card { padding: 20px; }
-
-        .attendance-bars { display: flex; flex-direction: column; gap: 14px; }
-        .att-bar { display: flex; flex-direction: column; gap: 6px; }
-        .att-bar__info { display: flex; justify-content: space-between; }
-        .att-bar__label { font-size: 0.82rem; color: hsl(var(--color-text)); font-weight: 500; }
-        .att-bar__count { font-size: 0.82rem; font-weight: 700; color: hsl(var(--color-text)); }
-        .att-bar__track {
-          height: 7px; border-radius: 9999px;
-          background: hsl(var(--color-surface-2));
-          overflow: hidden;
-        }
-        .att-bar__fill { height: 100%; border-radius: 9999px; transition: width 0.5s; }
-
-        .sys-status-list { display: flex; flex-direction: column; gap: 12px; }
-        .sys-status-item {
-          display: flex; align-items: center; gap: 10px;
-          font-size: 0.875rem; color: hsl(var(--color-text));
-        }
-        .sys-status-item .badge { margin-left: auto; }
-
-        /* Responsive */
-        @media (max-width: 1100px) {
-          .dash-stats { grid-template-columns: repeat(2, 1fr); }
-          .quick-actions { grid-template-columns: repeat(2, 1fr); }
-          .dash-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 640px) {
-          .dash-stats { grid-template-columns: 1fr; }
-        }
-      `}</style>
     </div>
   );
 }

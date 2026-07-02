@@ -1,66 +1,56 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, GraduationCap, Loader2, AlertCircle, BookOpen, Users, BarChart3 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, ArrowRight, BookOpen, Users, BarChart3 } from 'lucide-react';
 import { authApi } from '@/lib/api/endpoints';
 import { useAuthStore } from '@/stores/auth.store';
 import { ROLE_DASHBOARD_PATH, UserRole } from '@/types/enums';
-import { extractApiError } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { extractApiError, cn } from '@/lib/utils';
 
-// ── Validation Schema ────────────────────────────────────
 const loginSchema = z.object({
   email: z.string().email('Format email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
 });
-
 type LoginFormData = z.infer<typeof loginSchema>;
 
-// ── Feature list untuk info panel ────────────────────────
 const features = [
-  { icon: BookOpen, label: 'LMS & Materi Belajar', desc: 'Upload materi, tugas, dan ujian online' },
-  { icon: Users, label: 'Manajemen Siswa & Guru', desc: 'Kelola data akademik terpusat' },
-  { icon: BarChart3, label: 'Dashboard Real-time', desc: 'Pantau kehadiran, nilai, dan keuangan' },
+  { icon: BookOpen, label: 'LMS & E-Learning', desc: 'Materi, tugas & ujian online' },
+  { icon: Users,    label: 'Manajemen Terpusat', desc: 'Siswa, guru & kelas dalam satu sistem' },
+  { icon: BarChart3, label: 'Laporan Real-time', desc: 'Nilai, kehadiran & keuangan' },
 ];
 
-// ── Demo accounts helper ──────────────────────────────────
 const demoAccounts = [
-  { role: 'Admin', email: 'admin@sims.app', password: 'Admin@1234' },
-  { role: 'Guru', email: 'guru@sims.app', password: 'Demo@1234' },
-  { role: 'Siswa', email: 'siswa@sims.app', password: 'Demo@1234' },
-  { role: 'Orang Tua', email: 'ortu@sims.app', password: 'Demo@1234' },
+  { role: 'Admin',  email: 'admin@sims.app',  password: 'Admin@1234' },
+  { role: 'Kepsek', email: 'kepsek@sims.app', password: 'Demo@1234' },
+  { role: 'Guru',   email: 'guru@sims.app',   password: 'Demo@1234' },
+  { role: 'Siswa',  email: 'siswa@sims.app',  password: 'Demo@1234' },
+  { role: 'Ortu',   email: 'ortu@sims.app',   password: 'Demo@1234' },
 ];
 
 export default function LoginForm() {
   const router = useRouter();
   const { setAuth } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
-  const [serverError, setServerError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError]   = useState('');
+  const [isLoading, setIsLoading]       = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setServerError('');
-
     try {
-      const response = await authApi.login(data);
-      const { user, accessToken } = response.data.data;
-
+      const res = await authApi.login(data);
+      const { user, accessToken } = res.data.data;
       setAuth(user, accessToken);
-
-      const dashboardPath = ROLE_DASHBOARD_PATH[user.role as UserRole] || '/admin/dashboard';
-      router.push(dashboardPath);
+      router.push(ROLE_DASHBOARD_PATH[user.role as UserRole] || '/admin/dashboard');
     } catch (err) {
       setServerError(extractApiError(err));
     } finally {
@@ -69,376 +59,269 @@ export default function LoginForm() {
   };
 
   const fillDemo = (email: string, password: string) => {
-    setValue('email', email);
-    setValue('password', password);
+    setValue('email',    email,    { shouldValidate: true });
+    setValue('password', password, { shouldValidate: true });
   };
 
   return (
-    <div className="login-page">
-      {/* ── Background Decorations ─────────────────────── */}
-      <div className="login-bg-orb login-bg-orb--1" />
-      <div className="login-bg-orb login-bg-orb--2" />
-      <div className="login-bg-grid" />
+    <div className="min-h-screen flex" style={{ background: 'var(--color-page)' }}>
 
-      <div className="login-container fade-in">
-        {/* ── Left Panel — Info ─────────────────────────── */}
-        <div className="login-info-panel">
-          {/* Logo & Brand */}
-          <div className="login-brand">
-            <div className="login-brand__icon">
-              <GraduationCap size={28} color="white" />
-            </div>
-            <div>
-              <h1 className="login-brand__name">SIMS</h1>
-              <p className="login-brand__tagline">Sistem Informasi Manajemen Sekolah</p>
-            </div>
+      {/* ── Left Panel — Brand (desktop) ──────────────────── */}
+      <div
+        className="hidden lg:flex flex-col w-[420px] flex-shrink-0 relative overflow-hidden p-10"
+        style={{ background: 'var(--color-brand)' }}
+      >
+        {/* Decorative circles */}
+        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full opacity-20"
+             style={{ background: 'var(--color-accent)' }} />
+        <div className="absolute bottom-16 -left-14 w-44 h-44 rounded-full opacity-15"
+             style={{ background: '#0C447C' }} />
+        <div className="absolute bottom-48 right-8 w-16 h-16 rounded-full opacity-20"
+             style={{ background: 'var(--color-accent)' }} />
+
+        {/* School Brand */}
+        <div className="relative z-10 flex items-center gap-3 mb-10">
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md flex-shrink-0 overflow-hidden">
+            <Image src="/school-logo.png" alt="Logo" width={40} height={40} className="object-contain" />
           </div>
-
-          {/* Headline */}
-          <div className="login-headline">
-            <h2>Platform terpadu untuk<br /><span className="gradient-text">sekolah modern.</span></h2>
-            <p>Kelola akademik, administrasi, dan komunikasi sekolah dalam satu platform yang terintegrasi.</p>
+          <div>
+            <p className="text-white font-black text-sm leading-tight">SMA Negeri 1 Contoh</p>
+            <p className="text-white/70 text-xs">Sistem Informasi Sekolah</p>
           </div>
+        </div>
 
-          {/* Feature List */}
-          <div className="login-features">
+        {/* Headline */}
+        <div className="relative z-10 flex-1">
+          <h1 className="text-3xl font-extrabold text-white leading-snug tracking-tight mb-2">
+            Platform Digital<br />Sekolah Modern
+          </h1>
+          <p className="text-white/75 text-sm leading-relaxed mb-7">
+            Kelola akademik dan administrasi sekolah secara efisien dalam satu platform terpadu.
+          </p>
+
+          {/* Features */}
+          <div className="space-y-2.5">
             {features.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="login-feature-item">
-                <div className="login-feature-item__icon">
-                  <Icon size={18} />
+              <div key={label}
+                   className="flex items-center gap-3 rounded-2xl p-3"
+                   style={{ background: 'rgba(255,255,255,0.12)' }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'rgba(255,255,255,0.18)' }}>
+                  <Icon size={16} className="text-white" />
                 </div>
                 <div>
-                  <p className="login-feature-item__label">{label}</p>
-                  <p className="login-feature-item__desc">{desc}</p>
+                  <p className="text-white text-xs font-semibold">{label}</p>
+                  <p className="text-white/65 text-[11px]">{desc}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Stats */}
-          <div className="login-stats">
-            {[
-              { value: '6', label: 'Role Pengguna' },
-              { value: '9+', label: 'Modul Fitur' },
-              { value: '100%', label: 'Cloud-Based' },
-            ].map((stat) => (
-              <div key={stat.label} className="login-stat">
-                <span className="login-stat__value gradient-text">{stat.value}</span>
-                <span className="login-stat__label">{stat.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── Right Panel — Form ────────────────────────── */}
-        <div className="login-form-panel">
-          <div className="login-form-card glass">
-            <div className="login-form-header">
-              <h2>Selamat Datang</h2>
-              <p>Masuk ke akun Anda untuk melanjutkan</p>
+        {/* Stats */}
+        <div className="relative z-10 flex gap-8 pt-5 mt-6 border-t" style={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+          {[{ v: '6', l: 'Tipe Pengguna' }, { v: '9+', l: 'Modul Fitur' }, { v: '100%', l: 'Data Aman' }].map(s => (
+            <div key={s.l}>
+              <p className="text-xl font-black text-white">{s.v}</p>
+              <p className="text-white/60 text-[11px]">{s.l}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Right Panel — Form ───────────────────────────── */}
+      <div className="flex-1 flex flex-col items-center justify-center p-5 sm:p-10 overflow-y-auto">
+
+        {/* Mobile: Logo */}
+        <div className="lg:hidden flex flex-col items-center gap-2 mb-6">
+          <div className="w-14 h-14 bg-white rounded-2xl shadow border flex items-center justify-center overflow-hidden"
+               style={{ borderColor: 'var(--color-border)' }}>
+            <Image src="/school-logo.png" alt="Logo" width={46} height={46} className="object-contain" />
+          </div>
+          <div className="text-center">
+            <p className="font-black text-sm" style={{ color: 'var(--color-text)' }}>SMA Negeri 1 Contoh</p>
+            <p className="text-xs" style={{ color: 'var(--color-muted)' }}>Sistem Informasi Sekolah</p>
+          </div>
+        </div>
+
+        {/* Card */}
+        <div className="w-full max-w-[360px] animate-fadeIn">
+          <div className="bg-white rounded-3xl p-7 shadow-sm"
+               style={{ border: '0.5px solid var(--color-border)' }}>
+
+            {/* Header */}
+            <div className="mb-5">
+              <h2 className="text-xl font-extrabold tracking-tight" style={{ color: 'var(--color-text)' }}>
+                Masuk ke Akun
+              </h2>
+              <p className="text-xs mt-1" style={{ color: 'var(--color-muted)' }}>
+                Gunakan email dan password yang terdaftar
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="login-form" noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
               {/* Email */}
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email</label>
+              <div>
+                <label htmlFor="email" className="block text-xs font-semibold mb-1.5"
+                       style={{ color: 'var(--color-text)' }}>
+                  Email
+                </label>
                 <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="nama@sekolah.id"
-                  className={cn('input-field', errors.email && 'error')}
+                  id="email" type="email" autoComplete="email"
+                  placeholder="contoh@sekolah.id"
+                  className={cn(
+                    'w-full px-3.5 py-2.5 rounded-xl text-sm outline-none transition-all duration-150',
+                    errors.email ? 'border-[var(--color-danger)]' : ''
+                  )}
+                  style={{
+                    background:   errors.email ? 'var(--color-danger-soft)' : '#F7F7F5',
+                    border:       `0.5px solid ${errors.email ? 'var(--color-danger)' : 'var(--color-border)'}`,
+                    color:        'var(--color-text)',
+                  }}
+                  onFocus={e => {
+                    e.currentTarget.style.borderColor = 'var(--color-brand)';
+                    e.currentTarget.style.boxShadow   = '0 0 0 3px var(--color-brand-soft)';
+                    e.currentTarget.style.background  = '#fff';
+                  }}
+                  onBlur={e => {
+                    e.currentTarget.style.borderColor = errors.email ? 'var(--color-danger)' : 'var(--color-border)';
+                    e.currentTarget.style.boxShadow   = 'none';
+                    e.currentTarget.style.background  = errors.email ? 'var(--color-danger-soft)' : '#F7F7F5';
+                  }}
                   {...register('email')}
                 />
                 {errors.email && (
-                  <p className="form-error">
-                    <AlertCircle size={13} />
-                    {errors.email.message}
+                  <p className="flex items-center gap-1 text-[11px] mt-1"
+                     style={{ color: 'var(--color-danger)' }}>
+                    <AlertCircle size={11} /> {errors.email.message}
                   </p>
                 )}
               </div>
 
               {/* Password */}
-              <div className="form-group">
-                <div className="form-label-row">
-                  <label htmlFor="password" className="form-label">Password</label>
-                  <a href="/forgot-password" className="form-forgot">Lupa password?</a>
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label htmlFor="password" className="block text-xs font-semibold"
+                         style={{ color: 'var(--color-text)' }}>
+                    Password
+                  </label>
+                  <a href="/forgot-password" className="text-[11px] font-medium transition-colors hover:opacity-80"
+                     style={{ color: 'var(--color-brand)' }}>
+                    Lupa password?
+                  </a>
                 </div>
-                <div className="input-password-wrapper">
+                <div className="relative">
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     placeholder="••••••••"
-                    className={cn('input-field', errors.password && 'error')}
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl text-sm outline-none transition-all duration-150"
+                    style={{
+                      background:   errors.password ? 'var(--color-danger-soft)' : '#F7F7F5',
+                      border:       `0.5px solid ${errors.password ? 'var(--color-danger)' : 'var(--color-border)'}`,
+                      color:        'var(--color-text)',
+                    }}
+                    onFocus={e => {
+                      e.currentTarget.style.borderColor = 'var(--color-brand)';
+                      e.currentTarget.style.boxShadow   = '0 0 0 3px var(--color-brand-soft)';
+                      e.currentTarget.style.background  = '#fff';
+                    }}
+                    onBlur={e => {
+                      e.currentTarget.style.borderColor = errors.password ? 'var(--color-danger)' : 'var(--color-border)';
+                      e.currentTarget.style.boxShadow   = 'none';
+                      e.currentTarget.style.background  = errors.password ? 'var(--color-danger-soft)' : '#F7F7F5';
+                    }}
                     {...register('password')}
                   />
-                  <button
-                    type="button"
-                    className="input-password-toggle"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  <button type="button"
+                          onClick={() => setShowPassword(v => !v)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:opacity-80"
+                          style={{ color: 'var(--color-muted)' }}>
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="form-error">
-                    <AlertCircle size={13} />
-                    {errors.password.message}
+                  <p className="flex items-center gap-1 text-[11px] mt-1"
+                     style={{ color: 'var(--color-danger)' }}>
+                    <AlertCircle size={11} /> {errors.password.message}
                   </p>
                 )}
               </div>
 
-              {/* Server Error */}
+              {/* Server error */}
               {serverError && (
-                <div className="form-server-error" role="alert">
-                  <AlertCircle size={16} />
-                  <span>{serverError}</span>
+                <div className="flex items-center gap-2 p-2.5 rounded-xl"
+                     style={{ background: 'var(--color-danger-soft)', border: '0.5px solid var(--color-danger)' }}>
+                  <AlertCircle size={14} className="flex-shrink-0" style={{ color: 'var(--color-danger)' }} />
+                  <p className="text-xs" style={{ color: 'var(--color-danger-dark)' }}>{serverError}</p>
                 </div>
               )}
 
-              {/* Submit Button */}
+              {/* Submit — satu tombol utama per layar */}
               <button
-                type="submit"
-                id="btn-login"
-                className="btn-primary w-full"
-                disabled={isLoading}
+                type="submit" id="btn-login" disabled={isLoading}
+                className="w-full py-3 rounded-xl font-bold text-sm text-white transition-all duration-200 mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background:  isLoading ? 'var(--color-brand-hover)' : 'var(--color-brand)',
+                  boxShadow:   '0 2px 12px rgba(55,138,221,0.25)',
+                }}
+                onMouseEnter={e => !isLoading && (e.currentTarget.style.background = 'var(--color-brand-hover)')}
+                onMouseLeave={e => !isLoading && (e.currentTarget.style.background = 'var(--color-brand)')}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={18} className="spin" />
-                    Masuk...
-                  </>
-                ) : (
-                  'Masuk ke SIMS'
-                )}
+                {isLoading
+                  ? <><Loader2 size={15} className="spin" /> Masuk...</>
+                  : <>Masuk Sekarang <ArrowRight size={15} /></>
+                }
               </button>
             </form>
 
-            {/* ── Demo Accounts ──────────────────────────── */}
-            <div className="login-demo">
-              <div className="login-demo__divider">
-                <span>Demo Akun</span>
-              </div>
-              <div className="login-demo__grid">
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.role}
-                    type="button"
-                    className="login-demo__btn"
-                    onClick={() => fillDemo(acc.email, acc.password)}
-                  >
+            {/* Demo Accounts */}
+            <div className="mt-4">
+              <p className="text-center text-[11px] mb-2.5 font-medium"
+                 style={{ color: 'var(--color-muted)' }}>
+                ── Demo Akun (klik untuk isi otomatis) ──
+              </p>
+              <div className="grid grid-cols-3 gap-1.5 mb-1.5">
+                {demoAccounts.slice(0, 3).map(acc => (
+                  <button key={acc.role} type="button"
+                          onClick={() => fillDemo(acc.email, acc.password)}
+                          className="py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95"
+                          style={{
+                            background:  'var(--color-brand-soft)',
+                            color:       'var(--color-brand-dark)',
+                            border:      '0.5px solid rgba(55,138,221,0.2)',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#d5e9f8'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'var(--color-brand-soft)'}>
                     {acc.role}
                   </button>
                 ))}
               </div>
-              <p className="login-demo__note">Klik untuk mengisi form secara otomatis</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {demoAccounts.slice(3).map(acc => (
+                  <button key={acc.role} type="button"
+                          onClick={() => fillDemo(acc.email, acc.password)}
+                          className="py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-150 active:scale-95"
+                          style={{
+                            background:  'var(--color-brand-soft)',
+                            color:       'var(--color-brand-dark)',
+                            border:      '0.5px solid rgba(55,138,221,0.2)',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#d5e9f8'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'var(--color-brand-soft)'}>
+                    {acc.role}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          <p className="login-footer">
-            © {new Date().getFullYear()} SIMS — Sistem Informasi Manajemen Sekolah
+          <p className="text-center text-[11px] mt-4" style={{ color: 'var(--color-muted)' }}>
+            © {new Date().getFullYear()} SIMS · SMA Negeri 1 Contoh
           </p>
         </div>
       </div>
-
-      {/* ── Page Styles ───────────────────────────────────── */}
-      <style jsx>{`
-        .login-page {
-          min-height: 100vh;
-          background: linear-gradient(135deg, hsl(220 40% 6%) 0%, hsl(250 40% 10%) 50%, hsl(280 35% 8%) 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .login-bg-orb {
-          position: absolute;
-          border-radius: 9999px;
-          filter: blur(80px);
-          pointer-events: none;
-          z-index: 0;
-        }
-        .login-bg-orb--1 {
-          width: 600px; height: 600px;
-          background: radial-gradient(circle, hsl(234 89% 56% / 0.20) 0%, transparent 70%);
-          top: -200px; left: -100px;
-        }
-        .login-bg-orb--2 {
-          width: 500px; height: 500px;
-          background: radial-gradient(circle, hsl(280 65% 60% / 0.18) 0%, transparent 70%);
-          bottom: -150px; right: -100px;
-        }
-        .login-bg-grid {
-          position: absolute; inset: 0; z-index: 0;
-          background-image: linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px),
-                            linear-gradient(90deg, hsl(0 0% 100% / 0.03) 1px, transparent 1px);
-          background-size: 40px 40px;
-        }
-
-        .login-container {
-          position: relative; z-index: 1;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 48px;
-          max-width: 960px;
-          width: 100%;
-          align-items: center;
-        }
-
-        /* ── Info Panel ─────────────────────────────────── */
-        .login-info-panel { color: white; }
-
-        .login-brand {
-          display: flex; align-items: center; gap: 14px; margin-bottom: 48px;
-        }
-        .login-brand__icon {
-          width: 52px; height: 52px;
-          background: linear-gradient(135deg, hsl(234 89% 56%), hsl(280 65% 60%));
-          border-radius: 14px;
-          display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 8px 24px hsl(234 89% 56% / 0.40);
-          flex-shrink: 0;
-        }
-        .login-brand__name {
-          font-size: 1.5rem; font-weight: 800; color: white; margin: 0; letter-spacing: -0.03em;
-        }
-        .login-brand__tagline {
-          font-size: 0.8rem; color: hsl(0 0% 100% / 0.55); margin: 0;
-        }
-
-        .login-headline { margin-bottom: 40px; }
-        .login-headline h2 {
-          font-size: 2.25rem; font-weight: 800; color: white;
-          line-height: 1.2; letter-spacing: -0.03em; margin-bottom: 16px;
-        }
-        .login-headline p { color: hsl(0 0% 100% / 0.60); font-size: 1rem; line-height: 1.6; }
-
-        .login-features { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
-        .login-feature-item { display: flex; align-items: flex-start; gap: 14px; }
-        .login-feature-item__icon {
-          width: 38px; height: 38px; flex-shrink: 0;
-          background: hsl(0 0% 100% / 0.08);
-          border: 1px solid hsl(0 0% 100% / 0.12);
-          border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-          color: hsl(234 89% 78%);
-        }
-        .login-feature-item__label { font-weight: 600; color: white; font-size: 0.9rem; margin-bottom: 2px; }
-        .login-feature-item__desc { font-size: 0.8rem; color: hsl(0 0% 100% / 0.50); }
-
-        .login-stats {
-          display: flex; gap: 32px;
-          padding-top: 24px; border-top: 1px solid hsl(0 0% 100% / 0.10);
-        }
-        .login-stat { display: flex; flex-direction: column; gap: 2px; }
-        .login-stat__value { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; }
-        .login-stat__label { font-size: 0.75rem; color: hsl(0 0% 100% / 0.50); }
-
-        /* ── Form Panel ─────────────────────────────────── */
-        .login-form-panel {
-          display: flex; flex-direction: column; align-items: center; gap: 20px;
-        }
-
-        .login-form-card {
-          width: 100%; max-width: 420px;
-          border-radius: 20px;
-          padding: 36px;
-          background: hsl(0 0% 100% / 0.06) !important;
-          border: 1px solid hsl(0 0% 100% / 0.12) !important;
-          backdrop-filter: blur(24px);
-        }
-
-        .login-form-header { margin-bottom: 28px; }
-        .login-form-header h2 {
-          font-size: 1.5rem; font-weight: 800;
-          color: white; margin-bottom: 6px; letter-spacing: -0.02em;
-        }
-        .login-form-header p { color: hsl(0 0% 100% / 0.55); font-size: 0.9rem; }
-
-        .login-form { display: flex; flex-direction: column; gap: 18px; }
-
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-label { font-size: 0.85rem; font-weight: 600; color: hsl(0 0% 100% / 0.80); }
-        .form-label-row { display: flex; justify-content: space-between; align-items: center; }
-        .form-forgot { font-size: 0.82rem; color: hsl(234 89% 75%); text-decoration: none; transition: color 0.15s; }
-        .form-forgot:hover { color: hsl(234 89% 85%); }
-
-        .input-field {
-          background: hsl(0 0% 100% / 0.08) !important;
-          border: 1.5px solid hsl(0 0% 100% / 0.15) !important;
-          color: white !important;
-        }
-        .input-field::placeholder { color: hsl(0 0% 100% / 0.30) !important; }
-        .input-field:focus { border-color: hsl(234 89% 65%) !important; }
-
-        .input-password-wrapper { position: relative; }
-        .input-password-wrapper .input-field { padding-right: 44px; }
-        .input-password-toggle {
-          position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-          background: none; border: none; cursor: pointer;
-          color: hsl(0 0% 100% / 0.45); display: flex; align-items: center;
-          padding: 0; transition: color 0.15s;
-        }
-        .input-password-toggle:hover { color: hsl(0 0% 100% / 0.80); }
-
-        .form-error {
-          display: flex; align-items: center; gap: 5px;
-          font-size: 0.8rem; color: hsl(0 84% 72%); margin: 0;
-        }
-
-        .form-server-error {
-          display: flex; align-items: center; gap: 8px;
-          padding: 12px 14px;
-          background: hsl(0 84% 60% / 0.15);
-          border: 1px solid hsl(0 84% 60% / 0.30);
-          border-radius: 10px;
-          color: hsl(0 84% 78%); font-size: 0.875rem;
-        }
-
-        .w-full { width: 100%; }
-
-        /* ── Demo Accounts ──────────────────────────────── */
-        .login-demo { margin-top: 20px; }
-        .login-demo__divider {
-          display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
-        }
-        .login-demo__divider::before,
-        .login-demo__divider::after {
-          content: ''; flex: 1; height: 1px; background: hsl(0 0% 100% / 0.12);
-        }
-        .login-demo__divider span { font-size: 0.75rem; color: hsl(0 0% 100% / 0.40); white-space: nowrap; }
-
-        .login-demo__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .login-demo__btn {
-          padding: 8px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
-          background: hsl(0 0% 100% / 0.06); border: 1px solid hsl(0 0% 100% / 0.10);
-          color: hsl(0 0% 100% / 0.65); cursor: pointer; transition: all 0.15s;
-        }
-        .login-demo__btn:hover {
-          background: hsl(234 89% 56% / 0.20); border-color: hsl(234 89% 56% / 0.40);
-          color: hsl(234 89% 80%);
-        }
-        .login-demo__note { text-align: center; font-size: 0.72rem; color: hsl(0 0% 100% / 0.30); margin-top: 8px; }
-
-        .login-footer { font-size: 0.78rem; color: hsl(0 0% 100% / 0.25); text-align: center; }
-
-        /* ── Responsive ─────────────────────────────────── */
-        @media (max-width: 768px) {
-          .login-container {
-            grid-template-columns: 1fr;
-            gap: 32px;
-            max-width: 420px;
-          }
-          .login-info-panel { display: none; }
-          .login-form-panel { width: 100%; }
-          .login-form-card { max-width: 100%; padding: 28px 24px; }
-        }
-      `}</style>
     </div>
   );
 }
