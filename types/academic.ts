@@ -36,7 +36,7 @@ export interface SchoolClass {
   schoolYear?: SchoolYear;
   homeroomTeacherId: string | null;
   roomNumber: string | null;
-  capacity: number;
+  maxStudents: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -47,7 +47,7 @@ export interface Subject {
   name: string;
   code: string;
   type: SubjectType;
-  creditHours: number;
+  weeklyHours: number;
   description: string | null;
   isActive: boolean;
   createdAt: string;
