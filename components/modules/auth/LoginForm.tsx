@@ -43,8 +43,8 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const emailReg    = register('email');
-  const passwordReg = register('password');
+  const { onChange: emailOnChange, onBlur: emailOnBlur, name: emailName, ref: emailRef } = register('email');
+  const { onChange: pwdOnChange, onBlur: pwdOnBlur, name: pwdName, ref: pwdRef } = register('password');
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -186,9 +186,11 @@ export default function LoginForm() {
                     e.currentTarget.style.boxShadow   = '0 0 0 3px var(--color-brand-soft)';
                     e.currentTarget.style.background  = '#fff';
                   }}
-                  {...emailReg}
+                  name={emailName}
+                  ref={emailRef}
+                  onChange={emailOnChange}
                   onBlur={e => {
-                    emailReg.onBlur(e);
+                    emailOnBlur(e);
                     e.currentTarget.style.borderColor = errors.email ? 'var(--color-danger)' : 'var(--color-border)';
                     e.currentTarget.style.boxShadow   = 'none';
                     e.currentTarget.style.background  = errors.email ? 'var(--color-danger-soft)' : '#F7F7F5';
@@ -231,9 +233,11 @@ export default function LoginForm() {
                       e.currentTarget.style.boxShadow   = '0 0 0 3px var(--color-brand-soft)';
                       e.currentTarget.style.background  = '#fff';
                     }}
-                    {...passwordReg}
+                    name={pwdName}
+                    ref={pwdRef}
+                    onChange={pwdOnChange}
                     onBlur={e => {
-                      passwordReg.onBlur(e);
+                      pwdOnBlur(e);
                       e.currentTarget.style.borderColor = errors.password ? 'var(--color-danger)' : 'var(--color-border)';
                       e.currentTarget.style.boxShadow   = 'none';
                       e.currentTarget.style.background  = errors.password ? 'var(--color-danger-soft)' : '#F7F7F5';
