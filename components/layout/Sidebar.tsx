@@ -25,7 +25,8 @@ const NAV: NavGroup[] = [
   {
     group: 'Utama',
     items: [
-      { label: 'Dashboard', href: '/admin/dashboard',  icon: LayoutDashboard, roles: [UserRole.ADMIN, UserRole.KEPALA_SEKOLAH, UserRole.SUPER_ADMIN] },
+      { label: 'Dashboard', href: '/admin/dashboard',  icon: LayoutDashboard, roles: [UserRole.ADMIN, UserRole.SUPER_ADMIN] },
+      { label: 'Dashboard', href: '/kepsek/dashboard', icon: LayoutDashboard, roles: [UserRole.KEPALA_SEKOLAH] },
       { label: 'Dashboard', href: '/guru/dashboard',   icon: LayoutDashboard, roles: [UserRole.GURU] },
       { label: 'Dashboard', href: '/siswa/dashboard',  icon: LayoutDashboard, roles: [UserRole.SISWA] },
       { label: 'Dashboard', href: '/ortu/dashboard',   icon: LayoutDashboard, roles: [UserRole.ORTU] },
@@ -44,18 +45,18 @@ const NAV: NavGroup[] = [
   {
     group: 'Akademik',
     items: [
-      { label: 'Materi & LMS', href: '/admin/lms',     icon: BookOpen },
-      { label: 'Absensi',      href: '/admin/absensi',  icon: ClipboardCheck },
-      { label: 'Nilai & Rapor',href: '/admin/nilai',    icon: Star },
+      { label: 'Materi & LMS', href: '/lms',     icon: BookOpen, roles: [UserRole.ADMIN, UserRole.GURU, UserRole.SISWA] },
+      { label: 'Absensi',      href: '/absensi',  icon: ClipboardCheck },
+      { label: 'Nilai & Rapor',href: '/nilai',    icon: Star },
     ],
   },
   {
     group: 'Lainnya',
     items: [
       { label: 'Keuangan',   href: '/admin/keuangan',   icon: Wallet,    roles: [UserRole.ADMIN] },
-      { label: 'Pengumuman', href: '/admin/pengumuman', icon: Megaphone },
+      { label: 'Pengumuman', href: '/pengumuman',       icon: Megaphone },
       { label: 'PPDB Online',href: '/admin/ppdb',       icon: FileText,  roles: [UserRole.ADMIN] },
-      { label: 'Pengaturan', href: '/admin/pengaturan', icon: Settings },
+      { label: 'Pengaturan', href: '/admin/pengaturan', icon: Settings,  roles: [UserRole.ADMIN, UserRole.KEPALA_SEKOLAH] },
     ],
   },
 ];
@@ -79,6 +80,22 @@ export default function Sidebar() {
       const dash = items.find(i => i.label === 'Dashboard');
       items = dash ? [dash] : items;
     }
+    
+    // Resolve dynamic prefix for shared paths
+    const rolePrefix = userRole === UserRole.KEPALA_SEKOLAH ? '/kepsek'
+                     : userRole === UserRole.GURU ? '/guru'
+                     : userRole === UserRole.SISWA ? '/siswa'
+                     : userRole === UserRole.ORTU ? '/ortu'
+                     : '/admin';
+
+    items = items.map(item => {
+      // If href doesn't start with a specific role prefix, prepend the rolePrefix
+      if (item.href.startsWith('/') && !['/admin', '/kepsek', '/guru', '/siswa', '/ortu'].some(p => item.href.startsWith(p))) {
+        return { ...item, href: `${rolePrefix}${item.href}` };
+      }
+      return item;
+    });
+
     return { ...group, items };
   }).filter(g => g.items.length > 0);
 

@@ -50,6 +50,21 @@ export interface ApiResponse<T = unknown> {
   };
 }
 
+/** Untuk endpoint list yang mengembalikan { data: T[], meta: {...} } */
+export interface PaginatedResponse<T = unknown> {
+  success: boolean;
+  data: {
+    data: T[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+  message: string;
+}
+
 export interface ApiError {
   success: false;
   error: {

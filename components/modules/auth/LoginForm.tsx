@@ -43,6 +43,9 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  const emailReg    = register('email');
+  const passwordReg = register('password');
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setServerError('');
@@ -183,12 +186,13 @@ export default function LoginForm() {
                     e.currentTarget.style.boxShadow   = '0 0 0 3px var(--color-brand-soft)';
                     e.currentTarget.style.background  = '#fff';
                   }}
+                  {...emailReg}
                   onBlur={e => {
+                    emailReg.onBlur(e);
                     e.currentTarget.style.borderColor = errors.email ? 'var(--color-danger)' : 'var(--color-border)';
                     e.currentTarget.style.boxShadow   = 'none';
                     e.currentTarget.style.background  = errors.email ? 'var(--color-danger-soft)' : '#F7F7F5';
                   }}
-                  {...register('email')}
                 />
                 {errors.email && (
                   <p className="flex items-center gap-1 text-[11px] mt-1"
@@ -227,12 +231,13 @@ export default function LoginForm() {
                       e.currentTarget.style.boxShadow   = '0 0 0 3px var(--color-brand-soft)';
                       e.currentTarget.style.background  = '#fff';
                     }}
+                    {...passwordReg}
                     onBlur={e => {
+                      passwordReg.onBlur(e);
                       e.currentTarget.style.borderColor = errors.password ? 'var(--color-danger)' : 'var(--color-border)';
                       e.currentTarget.style.boxShadow   = 'none';
                       e.currentTarget.style.background  = errors.password ? 'var(--color-danger-soft)' : '#F7F7F5';
                     }}
-                    {...register('password')}
                   />
                   <button type="button"
                           onClick={() => setShowPassword(v => !v)}

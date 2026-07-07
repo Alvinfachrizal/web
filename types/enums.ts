@@ -19,7 +19,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const ROLE_DASHBOARD_PATH: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]: '/admin/dashboard',
   [UserRole.ADMIN]: '/admin/dashboard',
-  [UserRole.KEPALA_SEKOLAH]: '/admin/dashboard',
+  [UserRole.KEPALA_SEKOLAH]: '/kepsek/dashboard',
   [UserRole.GURU]: '/guru/dashboard',
   [UserRole.SISWA]: '/siswa/dashboard',
   [UserRole.ORTU]: '/ortu/dashboard',

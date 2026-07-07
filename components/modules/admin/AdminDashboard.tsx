@@ -5,6 +5,7 @@ import {
   TrendingUp, TrendingDown, BookOpen, School, Clock,
   CheckCircle2, AlertCircle, ArrowRight, Plus,
 } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth.store';
 
@@ -25,10 +26,10 @@ const activities = [
 ];
 
 const quickActions = [
-  { id: 'tambah-siswa',  label: 'Tambah Siswa',  icon: GraduationCap },
-  { id: 'input-absensi', label: 'Input Absensi', icon: ClipboardCheck },
-  { id: 'input-nilai',   label: 'Input Nilai',   icon: BookOpen },
-  { id: 'tagihan-spp',   label: 'Tagihan SPP',   icon: Wallet },
+  { id: 'tambah-siswa',  label: 'Tambah Siswa',  icon: GraduationCap, href: '/admin/siswa' },
+  { id: 'input-absensi', label: 'Input Absensi', icon: ClipboardCheck, href: '/admin/absensi' },
+  { id: 'input-nilai',   label: 'Input Nilai',   icon: BookOpen, href: '/admin/nilai' },
+  { id: 'tagihan-spp',   label: 'Tagihan SPP',   icon: Wallet, href: '/admin/keuangan' },
 ];
 
 const attendance = [
@@ -100,8 +101,8 @@ export default function AdminDashboard() {
       <div>
         <h2 className="font-bold text-[13px] mb-2.5" style={{ color: 'var(--color-text)' }}>Aksi Cepat</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {quickActions.map(({ id, label, icon: Icon }) => (
-            <button key={id} id={id}
+          {quickActions.map(({ id, label, icon: Icon, href }) => (
+            <Link key={id} id={id} href={href}
                     className="group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col items-center gap-2.5 text-center"
                     style={{ background: 'var(--color-surface)', border: '0.5px solid var(--color-border)' }}>
               <div className="w-11 h-11 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
@@ -109,7 +110,7 @@ export default function AdminDashboard() {
                 <Icon size={18} />
               </div>
               <span className="text-[11px] font-bold" style={{ color: 'var(--color-text)' }}>{label}</span>
-            </button>
+            </Link>
           ))}
         </div>
       </div>

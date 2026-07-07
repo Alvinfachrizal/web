@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { LoginPayload, LoginResponse, ApiResponse, User } from '@/types';
+import type { LoginPayload, LoginResponse, ApiResponse, PaginatedResponse, User } from '@/types';
 
 // ── Auth Endpoints ───────────────────────────────────────
 export const authApi = {
