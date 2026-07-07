@@ -74,9 +74,10 @@ export interface Student {
   email: string | null;
   parentName: string | null;
   parentPhone: string | null;
+  parentJob: string | null;
   status: StudentStatus;
   photo: string | null;
-  enrollmentYear: number | null;
+  entryYear: number | null;
   graduationYear: number | null;
   notes: string | null;
   createdAt: string;
