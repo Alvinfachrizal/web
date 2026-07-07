@@ -27,8 +27,8 @@ function KelasTab() {
   const [deleteTarget, setDeleteTarget] = useState<SchoolClass | null>(null);
   const [deleting, setDeleting]     = useState(false);
 
-  const [form, setForm] = useState<Partial<SchoolClass>>({ grade: 10, capacity: 36 });
-  const setF = (k: keyof SchoolClass, v: string | number) => setForm(p => ({ ...p, [k]: v }));
+  const [form, setForm] = useState<Partial<SchoolClass>>({ grade: 10, maxStudents: 36 });
+  const setF = (k: string, v: string | number) => setForm(p => ({ ...p, [k]: v }));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -52,8 +52,15 @@ function KelasTab() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      editing?.id ? await classesApi.update(editing.id, form) : await classesApi.create(form);
-      setModalOpen(false); setEditing(null); setForm({ grade: 10, capacity: 36 }); load();
+      const allowedKeys = ['name', 'grade', 'schoolYearId', 'majorId', 'roomNumber', 'maxStudents'];
+      const payload: Record<string, any> = {};
+      allowedKeys.forEach(k => {
+        if ((form as any)[k] !== undefined && (form as any)[k] !== '') {
+          payload[k] = (form as any)[k];
+        }
+      });
+      editing?.id ? await classesApi.update(editing.id, payload) : await classesApi.create(payload);
+      setModalOpen(false); setEditing(null); setForm({ grade: 10, maxStudents: 36 }); load();
     } catch (err) { console.error(err); } finally { setSaving(false); }
   };
 
@@ -65,7 +72,7 @@ function KelasTab() {
   };
 
   const openEdit = (c: SchoolClass) => { setEditing(c); setForm(c); setModalOpen(true); };
-  const openAdd  = () => { setEditing(null); setForm({ grade: 10, capacity: 36 }); setModalOpen(true); };
+  const openAdd  = () => { setEditing(null); setForm({ grade: 10, maxStudents: 36 }); setModalOpen(true); };
 
   return (
     <>
@@ -100,7 +107,7 @@ function KelasTab() {
                   <td className="px-4 py-3"><Badge variant="info">Kelas {c.grade}</Badge></td>
                   <td className="px-4 py-3" style={{ color: 'var(--color-muted)' }}>{c.major?.name || '—'}</td>
                   <td className="px-4 py-3" style={{ color: 'var(--color-muted)' }}>{c.schoolYear?.academicYear || '—'}</td>
-                  <td className="px-4 py-3 font-semibold" style={{ color: 'var(--color-text)' }}>{c.capacity} siswa</td>
+                  <td className="px-4 py-3 font-semibold" style={{ color: 'var(--color-text)' }}>{c.maxStudents} siswa</td>
                   <td className="px-4 py-3" style={{ color: 'var(--color-muted)' }}>{c.roomNumber || '—'}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
@@ -138,7 +145,7 @@ function KelasTab() {
               </Select>
             </FormField>
             <FormField label="Kapasitas">
-              <Input type="number" value={form.capacity || 36} onChange={e => setF('capacity', Number(e.target.value))} />
+              <Input type="number" value={(form as any).maxStudents || 36} onChange={e => setF('maxStudents', Number(e.target.value))} />
             </FormField>
             <FormField label="No. Ruang">
               <Input value={form.roomNumber || ''} onChange={e => setF('roomNumber', e.target.value)} placeholder="R-101" />
@@ -166,8 +173,8 @@ function MapelTab() {
   const [saving, setSaving]         = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Subject | null>(null);
   const [deleting, setDeleting]     = useState(false);
-  const [form, setForm] = useState<Partial<Subject>>({ type: 'wajib', creditHours: 2 });
-  const setF = (k: keyof Subject, v: string | number) => setForm(p => ({ ...p, [k]: v }));
+  const [form, setForm] = useState<Partial<Subject>>({ type: 'wajib', weeklyHours: 2 });
+  const setF = (k: string, v: string | number) => setForm(p => ({ ...p, [k]: v }));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -185,8 +192,13 @@ function MapelTab() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      editing?.id ? await subjectsApi.update(editing.id, form) : await subjectsApi.create(form);
-      setModalOpen(false); setEditing(null); setForm({ type: 'wajib', creditHours: 2 }); load();
+      const allowedKeys = ['code', 'name', 'type', 'weeklyHours', 'description'];
+      const payload: Record<string, any> = {};
+      allowedKeys.forEach(k => {
+        if ((form as any)[k] !== undefined && (form as any)[k] !== '') payload[k] = (form as any)[k];
+      });
+      editing?.id ? await subjectsApi.update(editing.id, payload) : await subjectsApi.create(payload);
+      setModalOpen(false); setEditing(null); setForm({ type: 'wajib', weeklyHours: 2 }); load();
     } catch (err) { console.error(err); } finally { setSaving(false); }
   };
 
@@ -204,7 +216,7 @@ function MapelTab() {
     <>
       <div className="px-5 py-3 flex gap-3 flex-wrap items-center justify-between" style={{ borderBottom: '0.5px solid var(--color-border)' }}>
         <div className="flex-1 min-w-[200px]"><SearchBar value={search} onChange={setSearch} placeholder="Cari nama atau kode mapel..." /></div>
-        <Button icon={Plus} onClick={() => { setEditing(null); setForm({ type: 'wajib', creditHours: 2 }); setModalOpen(true); }} id="btn-tambah-mapel">Tambah Mapel</Button>
+        <Button icon={Plus} onClick={() => { setEditing(null); setForm({ type: 'wajib', weeklyHours: 2 }); setModalOpen(true); }} id="btn-tambah-mapel">Tambah Mapel</Button>
       </div>
       {loading ? <LoadingSpinner /> : filtered.length === 0 ? (
         <EmptyState icon={BookOpen} title="Belum ada mata pelajaran" description="Tambahkan mata pelajaran terlebih dahulu" />
@@ -226,7 +238,7 @@ function MapelTab() {
                   <td className="px-4 py-3 font-bold" style={{ color: 'var(--color-text)' }}>{s.name}</td>
                   <td className="px-4 py-3 font-mono text-[11px]" style={{ color: 'var(--color-muted)' }}>{s.code}</td>
                   <td className="px-4 py-3"><Badge variant={typeVariant[s.type] || 'neutral'}>{typeLabel[s.type] || s.type}</Badge></td>
-                  <td className="px-4 py-3 font-semibold" style={{ color: 'var(--color-text)' }}>{s.creditHours} jam</td>
+                  <td className="px-4 py-3 font-semibold" style={{ color: 'var(--color-text)' }}>{s.weeklyHours} jam</td>
                   <td className="px-4 py-3" style={{ color: 'var(--color-muted)' }}>{s.description || '—'}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-1">
@@ -255,7 +267,7 @@ function MapelTab() {
               </Select>
             </FormField>
             <FormField label="Jam / Minggu">
-              <Input type="number" value={form.creditHours || 2} onChange={e => setF('creditHours', Number(e.target.value))} min={1} max={20} />
+              <Input type="number" value={(form as any).weeklyHours || 2} onChange={e => setF('weeklyHours', Number(e.target.value))} min={1} max={20} />
             </FormField>
           </div>
           <FormField label="Deskripsi"><Textarea value={form.description || ''} onChange={e => setF('description', e.target.value)} placeholder="Deskripsi singkat mata pelajaran" /></FormField>
@@ -281,7 +293,7 @@ function JurusanTab() {
   const [deleteTarget, setDeleteTarget] = useState<Major | null>(null);
   const [deleting, setDeleting]     = useState(false);
   const [form, setForm] = useState<Partial<Major>>({ type: 'IPA' });
-  const setF = (k: keyof Major, v: string) => setForm(p => ({ ...p, [k]: v }));
+  const setF = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -297,7 +309,12 @@ function JurusanTab() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      editing?.id ? await majorsApi.update(editing.id, form) : await majorsApi.create(form);
+      const allowedKeys = ['name', 'type', 'description'];
+      const payload: Record<string, any> = {};
+      allowedKeys.forEach(k => {
+        if ((form as any)[k] !== undefined && (form as any)[k] !== '') payload[k] = (form as any)[k];
+      });
+      editing?.id ? await majorsApi.update(editing.id, payload) : await majorsApi.create(payload);
       setModalOpen(false); setEditing(null); setForm({ type: 'IPA' }); load();
     } catch (err) { console.error(err); } finally { setSaving(false); }
   };
